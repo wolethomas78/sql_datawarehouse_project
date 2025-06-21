@@ -1,10 +1,11 @@
+/*
 DDL SCRIPT: CREATE SILVER LAYER
 
 SCRIPT PURPOSE:
 This script has tables in the silver layer schema, dropping exiting tables 
 if already created.
 Run this script to re-define the DDL structure of silver table
-
+*/
 
 
 -- Creating DDLscripts for all CSV files in the CRM and ERP systems--

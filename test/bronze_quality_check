@@ -1,4 +1,18 @@
+Quality Checks
 
+SCRIPT PURPOSE:
+    This script performs various quality checks for data consistency, accuracy, and standardization
+     across all bronze layer schema. It includes checks for:
+    - Null or duplicate primary keys.
+    - Unwanted spaces in string fields.
+    - Data standardization and consitency.
+    - Invalid data ranges and orders.
+    - Data consistency between related fields.
+
+USAGE NOTES:
+    - Run these checks after data loading bronze layer.
+    - investigate and resolve any descripancy found during the checks.
+*/
 
 
 SELECT * FROM bronze_crm_cust_info;

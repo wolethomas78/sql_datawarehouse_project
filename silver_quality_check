@@ -1,0 +1,456 @@
+/*
+Quality Checks
+
+SCRIPT PURPOSE:
+    This script performs various quality checks for data consistency, accuracy, and standardization
+     across all silver layer schema. It includes checks for:
+    - Null or duplicate primary keys.
+    - Unwanted spaces in string fields.
+    - Data standardization and consitency.
+    - Invalid data ranges and orders.
+    - Data consistency between related fields.
+
+USAGE NOTES:
+    - Run these checks after data loading silver layer.
+    - investigate and resolve any descripancy found during the checks.
+*/
+
+SELECT * FROM bronze_crm_cust_info;
+
+-- Checking the quality of our data by checking each column of bronze_crm_cust_info  --
+SELECT cst_id, COUNT(*)
+FROM bronze_crm_cust_info
+GROUP BY cst_id
+HAVING COUNT(*) > 1 OR cst_id IS NULL;
+
+SELECT cst_key FROM bronze_crm_cust_info
+WHERE cst_key <> TRIM(cst_key);
+
+SELECT cst_key, COUNT(*)
+FROM bronze_crm_cust_info
+GROUP BY cst_key
+HAVING COUNT(*) > 1 OR cst_key IS NULL;
+
+-- Check unwanted spaces --
+SELECT cst_firstname FROM bronze_crm_cust_info
+WHERE cst_firstname <> TRIM(cst_firstname);
+
+-- Check unwanted spaces --
+SELECT cst_lastname FROM bronze_crm_cust_info
+WHERE cst_lastname <> TRIM(cst_lastname);
+
+SELECT DISTINCT cst_marital_status
+FROM bronze_crm_cust_info;
+
+SELECT DISTINCT cst_gndr
+FROM bronze_crm_cust_info;
+
+SELECT cst_id, cst_create_date,
+ROW_NUMBER() OVER(PARTITION BY cst_id ORDER BY cst_create_date DESC) AS latest
+FROM bronze_crm_cust_info
+WHERE cst_id = 1 OR cst_id IS NOT NULL;
+
+SELECT *
+FROM (SELECT *,
+ROW_NUMBER() OVER(PARTITION BY cst_id ORDER BY cst_create_date DESC) AS latest
+FROM bronze_crm_cust_info
+WHERE cst_id = 1 OR cst_id IS NOT NULL) t 
+WHERE latest = 1;
+
+-- INSERT DATA INTO silver_crm_cust_info table--
+TRUNCATE TABLE silver_crm_cust_info;
+INSERT INTO silver_crm_cust_info(
+cst_id,
+cst_key,
+cst_firstname,
+cst_lastname,
+cst_marital_status,
+cst_gndr,
+cst_create_date
+)
+SELECT
+cst_id,
+cst_key,
+TRIM(cst_firstname) AS cst_firstname, --Removing unwanted space from cst_firstname column--
+TRIM(cst_lastname) AS cst_lastname, --Removing unwanted space from cst_lastname column--
+CASE 
+	WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married'
+	WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single'
+	ELSE 'n/a' --Normalization of marital status column to make it readable --
+END cst_marital_status,
+CASE 
+	WHEN UPPER(TRIM(cst_gndr)) = 'M' THEN 'Male'
+	WHEN UPPER(TRIM(cst_gndr)) = 'F' THEN 'Female'
+	ELSE 'n/a'
+END cst_gndr, --Normalization of gender column to make it readable --
+cst_create_date
+FROM (SELECT *,
+ROW_NUMBER() OVER(PARTITION BY cst_id ORDER BY cst_create_date DESC) AS latest
+FROM bronze_crm_cust_info
+WHERE cst_id = 1 OR cst_id IS NOT NULL) t 
+WHERE latest = 1;-- Select the most recent record per customer--
+
+
+
+-- Checking the quality of our data by checking each column of silver_crm_cust_info  --
+SELECT cst_id, COUNT(*)
+FROM silver_crm_cust_info
+GROUP BY cst_id
+HAVING COUNT(*) > 1 OR cst_id IS NULL;
+
+SELECT cst_key FROM silver_crm_cust_info
+WHERE cst_key <> TRIM(cst_key);
+
+SELECT cst_key, COUNT(*)
+FROM silver_crm_cust_info
+GROUP BY cst_key
+HAVING COUNT(*) > 1 OR cst_key IS NULL;
+
+-- Check unwanted spaces --
+SELECT cst_firstname FROM silver_crm_cust_info
+WHERE cst_firstname <> TRIM(cst_firstname);
+
+-- Check unwanted spaces --
+SELECT cst_lastname FROM silver_crm_cust_info
+WHERE cst_lastname <> TRIM(cst_lastname);
+
+SELECT DISTINCT cst_marital_status
+FROM silver_crm_cust_info;
+
+-- Data standardization and Consistency--
+SELECT DISTINCT cst_gndr
+FROM silver_crm_cust_info;
+
+SELECT cst_id, cst_create_date,
+ROW_NUMBER() OVER(PARTITION BY cst_id ORDER BY cst_create_date DESC) AS latest
+FROM silver_crm_cust_info
+WHERE cst_id = 1 OR cst_id IS NOT NULL;
+
+SELECT * FROM silver_crm_cust_info;
+
+
+
+
+
+
+
+-- Checking the quality of our data by checking each column of bronze_crm_prd_info  --
+SELECT * FROM bronze_crm_prd_info;
+
+SELECT prd_id, COUNT(*)
+FROM bronze_crm_prd_info
+GROUP BY prd_id
+HAVING COUNT(*) > 1 OR prd_id IS NULL;
+
+SELECT prd_key FROM bronze_crm_prd_info
+WHERE prd_key <> TRIM(prd_key);
+
+SELECT prd_nm FROM bronze_crm_prd_info
+WHERE prd_nm <> TRIM(prd_nm);
+
+SELECT prd_cost, COUNT(*)
+FROM bronze_crm_prd_info
+GROUP BY prd_cost
+HAVING COUNT(*) < 0 OR prd_cost IS NULL;
+
+-- Check unwanted spaces --
+SELECT DISTINCT prd_line FROM bronze_crm_prd_info;
+
+SELECT *
+FROM bronze_crm_prd_info
+WHERE prd_start_dt > prd_end_dt;
+
+
+-- INSERT DATA INTO silver_crm_prd_info table--
+TRUNCATE TABLE silver_crm_prd_info;
+INSERT INTO silver_crm_prd_info(
+prd_id,
+cat_id,
+prd_key,
+prd_nm,
+prd_cost,
+prd_line,
+prd_start_dt,
+prd_end_dt
+)
+SELECT
+prd_id,
+REPLACE(SUBSTRING(prd_key,1,5),'-', '_') AS cat_id,-- Extracted category id--
+SUBSTRING(prd_key,7, LENGTH(prd_key)) AS prd_key, -- Extracted product key--
+prd_nm,
+COALESCE(prd_cost, 0) AS prd_cost,
+CASE
+	WHEN UPPER(TRIM(prd_line)) = 'M' THEN 'Mountain'
+	WHEN UPPER(TRIM(prd_line)) = 'R' THEN 'Road'
+	WHEN UPPER(TRIM(prd_line)) = 'S' THEN 'Beverages'
+	WHEN UPPER(TRIM(prd_line)) = 'T' THEN 'Tourism'
+	ELSE 'n/a'
+END prd_line, --Map product line codes to descriptive values--
+CAST(prd_start_dt AS DATE) AS prd_start_dt,
+CAST(LEAD(prd_start_dt) OVER(PARTITION BY prd_key ORDER BY prd_start_dt)- INTERVAL '1 day' AS DATE)
+AS prd_end_date --Calculate end date from start day by deducting one day before the next start day--
+FROM bronze_crm_prd_info;
+
+SELECT * FROM silver_crm_prd_info;
+
+-- Checking the quality of our data by checking each column of silver_crm_cust_info  --
+SELECT prd_id, COUNT(*)
+FROM silver_crm_prd_info
+GROUP BY prd_id
+HAVING COUNT(*) > 1 OR prd_id IS NULL;
+
+SELECT cat_id FROM silver_crm_prd_info
+WHERE cat_id <> TRIM(cat_id);
+
+SELECT prd_key FROM silver_crm_prd_info
+WHERE prd_key <> TRIM(prd_key);
+
+SELECT prd_nm FROM silver_crm_prd_info
+WHERE prd_nm <> TRIM(prd_nm);
+
+SELECT prd_cost FROM silver_crm_prd_info
+WHERE prd_cost < 0 OR prd_cost IS NULL;
+
+SELECT DISTINCT prd_line FROM silver_crm_prd_info;
+
+SELECT * FROM silver_crm_prd_info
+WHERE prd_end_dt < prd_start_dt;
+
+
+SELECT * FROM bronze_crm_sales_details;
+
+-- Checking the quality of our data by checking each column of silver_crm_cust_info  --
+SELECT sls_ord_num, COUNT(*)
+FROM bronze_crm_sales_details
+GROUP BY sls_ord_num
+HAVING COUNT(*) > 1 OR sls_ord_num IS NULL;
+
+SELECT sls_ord_num FROM bronze_crm_sales_details
+WHERE sls_ord_num <> TRIM(sls_ord_num);
+
+SELECT DISTINCT sls_cust_id FROM bronze_crm_sales_details;
+
+SELECT * FROM bronze_crm_sales_details
+WHERE sls_order_dt < sls_ship_dt OR sls_order_dt < sls_due_dt;
+
+SELECT sls_sales FROM bronze_crm_sales_details
+WHERE sls_sales <=0 OR sls_sales IS NULL;
+
+SELECT sls_quantity FROM bronze_crm_sales_details
+WHERE sls_quantity <=0 OR sls_quantity IS NULL;
+
+SELECT sls_price FROM bronze_crm_sales_details
+WHERE sls_price <=0 OR sls_price IS NULL;
+
+
+SELECT DISTINCT sls_price, sls_quantity, sls_sales
+FROM bronze_crm_sales_details
+WHERE sls_sales <> sls_quantity * sls_price
+OR sls_sales IS NULL OR sls_quantity IS NULL OR sls_price IS NULL
+OR sls_sales <= 0 OR sls_quantity <= 0 OR sls_price <= 0
+ORDER BY sls_sales, sls_quantity, sls_price;
+
+
+TRUNCATE TABLE silver_crm_sales_details;
+INSERT INTO silver_crm_sales_details(
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+sls_order_dt,
+sls_ship_dt,
+sls_due_dt,
+sls_sales,
+sls_quantity,
+sls_price
+)
+SELECT
+    sls_ord_num,
+    sls_prd_key,
+    sls_cust_id,
+
+    CASE 
+        WHEN sls_order_dt = 0 
+             OR LENGTH(sls_order_dt::TEXT) <> 8 
+             OR sls_order_dt::TEXT !~ '^\d{8}$'
+        THEN NULL
+        ELSE TO_DATE(sls_order_dt::TEXT, 'YYYYMMDD')
+    END AS sls_order_dt,
+
+    CASE 
+        WHEN sls_ship_dt = 0 
+             OR LENGTH(sls_ship_dt::TEXT) <> 8 
+             OR sls_ship_dt::TEXT !~ '^\d{8}$'
+        THEN NULL
+        ELSE TO_DATE(sls_ship_dt::TEXT, 'YYYYMMDD')
+    END AS sls_ship_dt,
+
+    CASE 
+        WHEN sls_due_dt = 0 
+             OR LENGTH(sls_due_dt::TEXT) <> 8 
+             OR sls_due_dt::TEXT !~ '^\d{8}$'
+        THEN NULL
+        ELSE TO_DATE(sls_due_dt::TEXT, 'YYYYMMDD')
+    END AS sls_due_dt,
+	CASE 
+		WHEN sls_sales <= 0 OR sls_sales IS NULL OR sls_sales <> sls_quantity* ABS(sls_price)
+		THEN sls_quantity* ABS(sls_price)
+		ELSE sls_sales
+END AS sls_sales, -- Recalculate sales if original value is missing or incorrect--
+sls_quantity,
+	CASE 
+		WHEN sls_price IS NULL OR sls_price <=0
+		THEN sls_sales/NULLIF(sls_quantity,0)
+		ELSE sls_price
+END AS sls_price -- Derive price if original value is invalid --
+FROM bronze_crm_sales_details;
+
+
+SELECT * FROM silver_crm_sales_details;
+
+-- Checking the quality of our data by checking each column of silver_crm_cust_info  --
+SELECT sls_ord_num, COUNT(*)
+FROM silver_crm_sales_details
+GROUP BY sls_ord_num
+HAVING COUNT(*) > 1 OR sls_ord_num IS NULL;
+
+SELECT sls_ord_num FROM silver_crm_sales_details
+WHERE sls_ord_num <> TRIM(sls_ord_num);
+
+SELECT DISTINCT sls_cust_id FROM silver_crm_sales_details;
+
+SELECT * FROM silver_crm_sales_details
+WHERE sls_order_dt < sls_ship_dt OR sls_order_dt < sls_due_dt;
+
+SELECT sls_sales FROM silver_crm_sales_details
+WHERE sls_sales <=0 OR sls_sales IS NULL;
+
+SELECT sls_quantity FROM silver_crm_sales_details
+WHERE sls_quantity <=0 OR sls_quantity IS NULL;
+
+SELECT sls_price FROM silver_crm_sales_details
+WHERE sls_price <=0 OR sls_price IS NULL;
+
+SELECT DISTINCT sls_price, sls_quantity, sls_sales
+FROM silver_crm_sales_details
+WHERE sls_sales <> sls_quantity * sls_price
+OR sls_sales IS NULL OR sls_quantity IS NULL OR sls_price IS NULL
+OR sls_sales <= 0 OR sls_quantity <= 0 OR sls_price <= 0
+ORDER BY sls_sales, sls_quantity, sls_price;
+
+
+
+SELECT DISTINCT gen FROM bronze_erp_cust_az12;
+
+SELECT * FROM bronze_erp_cust_az12;
+
+
+
+TRUNCATE TABLE silver_erp_cust_az12;
+INSERT INTO silver_erp_cust_az12(
+cid,
+bdate,
+gen
+)
+SELECT
+CASE 
+	WHEN cid LIKE 'NAS%' THEN -- Remove 'NAS' prefix if present--
+	SUBSTRING(cid,4, LENGTH(cid))
+	ELSE cid
+END AS cid,
+CASE 
+	WHEN bdate > CURRENT_TIMESTAMP THEN NULL
+	ELSE bdate
+END AS bdate, -- Set future birthdates to null--
+CASE 
+	WHEN UPPER(TRIM(gen)) IN ('F', 'FEMALE') THEN 'Female'
+	WHEN UPPER(TRIM(gen)) IN ('M', 'MALE') THEN 'Male'
+	ELSE 'n/a'
+END AS gen --Normalize gender values and handle unknown cases --
+FROM bronze_erp_cust_az12;
+
+SELECT * FROM silver_erp_cust_az12;
+
+--Identify out of date range--
+SELECT bdate
+FROM silver_erp_cust_az12
+WHERE bdate <DATE '1924-01-01' OR bdate > CURRENT_TIMESTAMP;
+
+-- Data standardization and consistency--
+SELECT DISTINCT gen FROM silver_erp_cust_az12;
+
+
+
+
+
+
+SELECT * FROM bronze_erp_loc_a101;
+
+SELECT DISTINCT cntry FROM bronze_erp_loc_a101;
+
+TRUNCATE TABLE silver_erp_loc_a101;
+INSERT INTO silver_erp_loc_a101(
+cid,
+cntry
+)
+SELECT 
+REPLACE(cid,'-','') AS cid,
+CASE 
+	WHEN UPPER(TRIM(cntry)) IN ('US','UNITED STATES','USA') THEN 'United States'
+	WHEN UPPER(TRIM(cntry)) IN ('GERMANY','DE') THEN 'Germany'
+	WHEN UPPER(TRIM(cntry)) = 'AUSTRALIA' THEN 'Australia'
+	WHEN UPPER(TRIM(cntry)) = 'CANADA' THEN 'Canada'
+	WHEN UPPER(TRIM(cntry)) = 'FRANCE' THEN 'France'
+	WHEN UPPER(TRIM(cntry)) = 'UNITED KINGDOM'THEN 'United Kingdom'
+	ELSE 'n/a'
+END AS cntry --Normalize and handle missing or blank country codes--
+FROM bronze_erp_loc_a101;
+
+
+SELECT * FROM silver_erp_loc_a101;
+
+SELECT DISTINCT cntry FROM silver_erp_loc_a101;
+
+
+
+SELECT * FROM bronze_erp_px_cat_g1v2;
+
+-- Check for unwanted spaces --
+SELECT cat FROM bronze_erp_px_cat_g1v2
+WHERE cat <> TRIM (cat);
+
+SELECT subcat FROM bronze_erp_px_cat_g1v2
+WHERE subcat <> TRIM (subcat);
+
+SELECT DISTINCT maintenance
+FROM bronze_erp_px_cat_g1v2
+WHERE cat <> TRIM(cat) OR subcat <> TRIM(subcat) OR maintenance <> TRIM(maintenance);
+
+TRUNCATE TABLE silver_erp_px_cat_g1v2;
+INSERT INTO silver_erp_px_cat_g1v2(
+id,
+cat,
+subcat,
+maintenance
+)
+SELECT
+id,
+cat,
+subcat,
+maintenance
+FROM bronze_erp_px_cat_g1v2;
+
+SELECT * FROM 
+
+
+SELECT 
+REPLACE(cid,'-','') AS cid, cntry
+FROM bronze_erp_loc_a101
+WHERE REPLACE(cid,'-','') NOT IN
+(SELECT cst_key FROM silver_crm_cust_info);
+
+
+
+
+
+SELECT * FROM silver_erp_px_cat_g1v2;
+

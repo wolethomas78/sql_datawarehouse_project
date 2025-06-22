@@ -1,0 +1,62 @@
+
+
+
+
+SELECT * FROM gold_fact_sales;
+
+SELECT * FROM gold_dim_customers;
+
+SELECT * FROM gold_dim_product;
+
+
+-- Foreign key integrity (Dimension)
+SELECT * 
+FROM gold_fact_sales s
+LEFT JOIN gold_dim_customers c
+ON s.customer_key = c.customer_key
+LEFT JOIN gold_dim_product p
+ON s.product_key = p.product_key
+WHERE C.customer_key IS NULL;
+
+SELECT DISTINCT gender FROM gold_dim_customers;
+
+
+SELECT DISTINCT
+CASE WHEN cst_gndr <> 'n/a' THEN cst_gndr
+	ELSE gen
+END cst_gndr_new,
+cst_gndr,
+gen
+FROM silver_crm_cust_info ci
+LEFT JOIN silver_erp_cust_az12 ca
+ON ci.cst_key = ca.cid
+LEFT JOIN silver_erp_loc_a101 lo
+ON ci.cst_key = lo.cid;
+
+
+
+
+
+
+
+
+
+SELECT prd_key, COUNT(*) FROM
+(SELECT
+pd.prd_id AS product_id,
+pd.cat_id AS category_id,
+pd.prd_key, 
+pd.prd_nm AS product_name,
+pd.prd_cost AS product_cost,
+pd.prd_line AS product_line,
+pd.prd_start_dt AS start_date,
+pd.prd_end_dt AS end_date,
+px.cat AS category,
+px.subcat AS subcategory,
+px.maintenance
+FROM silver_crm_prd_info pd
+LEFT JOIN silver_erp_px_cat_g1v2 PX
+ON pd.cat_id = px.id
+WHERE pd.prd_end_dt IS NULL) -- Filter out all historical data--
+GROUP BY prd_key
+HAVING COUNT(*) > 1;

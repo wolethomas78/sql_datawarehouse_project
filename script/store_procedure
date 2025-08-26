@@ -18,174 +18,166 @@ Usage Example:
 */
 -- Loading our CRM and ERP data from the local machine --
 
+-- Creating store procedure for re-useability
 
-CREATE OR REPLACE PROCEDURE bronze_load_procedure()
-LANGUAGE plpgsql
+CREATE OR REPLACE PROCEDURE bronze_load ()
+language plpgsql
 AS $$
+-- Determing time taking to copy each file, display error if any and count rows in each file.
+DECLARE
+	start_time  TIMESTAMP; -- time when the upload starts
+	end_time  TIMESTAMP; -- time when the upload ends
+	duration  INTERVAL; -- difference btween end_time and start_time
+	row_count  BIGINT; -- count the total rows in each file
 
-DECLARE 
-	row_count INT;
-	start_time TIMESTAMP;
-	end_time TIMESTAMP;
-	duration INTERVAL;
-	total_start_time TIMESTAMP;
-	total_end_time TIMESTAMP;
-	total_duration INTERVAL;
-BEGIN
-	total_start_time := clock_timestamp();-- Setting the time to ascertain the total start time of the file loading--
+BEGIN 
 	
-RAISE NOTICE 'Truncating table bronze_crm_cust_info';
-TRUNCATE TABLE bronze_crm_cust_info;
+
+	BEGIN
+			start_time := clock_timestamp();
+		-- Bulk loading of the CSV file from the source
+		-- Truncate and copy csv file into table bronze_crm_cust_info
+		TRUNCATE TABLE bronze_crm_cust_info; 
+		COPY bronze_crm_cust_info
+		FROM 'C:\Program Files\PostgreSQL\16\cust_info.csv'
+		DELIMITER ','
+		CSV HEADER;
+			end_time := clock_timestamp();
+			duration := end_time - start_time;
+      
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+			
+		-- count the total rows from bronze_crm_cust_info
+		SELECT COUNT(*) INTO row_count FROM bronze_crm_cust_info;
+		RAISE NOTICE 'total no of rows in bronze_crm_cust_info: %', row_count;
+			
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	END;
+
+
+	BEGIN 
+			start_time := clock_timestamp();	
+		-- Truncate and copy csv file into table bronze_crm_prd_info
+		TRUNCATE TABLE bronze_crm_prd_info;
+		COPY bronze_crm_prd_info
+		FROM 'C:\Program Files\PostgreSQL\16\prd_info.csv'
+		DELIMITER ','
+		CSV HEADER;
+ 		end_time := clock_timestamp();
+		duration := end_time - start_time;
+		
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+			
+		-- count the total rows from bronze_crm_prd_info
+		SELECT COUNT(*) INTO row_count FROM bronze_crm_prd_info;
+		RAISE NOTICE 'total no of rows in bronze_crm_prd_info: %', row_count;
+			
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	
+	END;
+
+	BEGIN
+			start_time := clock_timestamp();
+		-- Truncate and copy csv file into table bronze_crm_sales_detail
+		TRUNCATE TABLE bronze_crm_sales_details;
+		COPY bronze_crm_sales_details
+		FROM 'C:\Program Files\PostgreSQL\16\sales_details.csv'
+		DELIMITER ','
+		CSV HEADER;
+		end_time := clock_timestamp();
+		duration := end_time - start_time;
+		
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+			
+		-- count the total rows from bronze_crm_sales_details
+		SELECT COUNT(*) INTO row_count FROM bronze_crm_sales_details;
+		RAISE NOTICE 'total no of rows in bronze_crm_sales_details: %', row_count;
+	
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	END;
+
+
+	BEGIN 
+			start_time := clock_timestamp();
+	-- Truncate and copy csv file into table bronze_erp_loc_a101
+		TRUNCATE TABLE bronze_erp_loc_a101;
+		COPY bronze_erp_loc_a101
+		FROM 'C:\Program Files\PostgreSQL\16\LOC_A101.csv'
+		DELIMITER ','
+		CSV HEADER;
+		end_time := clock_timestamp();
+		duration := end_time - start_time;
+		
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+			
+		-- count the total rows from bronze_erp_loc_a101
+		SELECT COUNT(*) INTO row_count FROM bronze_erp_loc_a101;
+		RAISE NOTICE 'total no of rows in bronze_erp_loc_a101: %', row_count;
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	END;
+
 
 BEGIN
-	start_time:= clock_timestamp();
-RAISE NOTICE 'Copying file cust_info.csv into bronze_crm_cust_info';
-COPY bronze_crm_cust_info
-FROM 'C:\Program Files\PostgreSQL\16\cust_info.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
+		start_time := clock_timestamp();
+-- Truncate and copy csv file into table bronze_erp_cust_az12 
+	TRUNCATE TABLE bronze_erp_cust_az12;
+	COPY bronze_erp_cust_az12
+	FROM 'C:\Program Files\PostgreSQL\16\CUST_AZ12.csv'
 	DELIMITER ','
-	);
-	end_time := clock_timestamp();
-	duration := end_time - start_time; -- Ascertain the time to cpy into bronze_crm_cust_info --
-SELECT COUNT(*) INTO row_count FROM bronze_crm_cust_info;
-RAISE NOTICE 'bronze_crm_cust_info has % rows (copied in %)', row_count, duration;
-EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Error copying into bronze_crm_cust_info: %', SQLERRM;
-END;
+	CSV HEADER;
+		end_time := clock_timestamp();
+		duration := end_time - start_time;
+		
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+	
+		-- count the total rows from bronze_erp_cust_az12
+		SELECT COUNT(*) INTO row_count FROM bronze_erp_cust_az12;
+		RAISE NOTICE 'total no of rows in bronze_erp_cust_az12: %', row_count;
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+		
+	
+	END;
 
+ BEGIN 
+			start_time := clock_timestamp();
+		TRUNCATE TABLE bronze_erp_cat_g1v2;
+		COPY bronze_erp_cat_g1v2
+		FROM 'C:\Program Files\PostgreSQL\16\PX_CAT_G1V2.csv'
+		DELIMITER ','
+		CSV HEADER;
+		end_time := clock_timestamp();
+		duration := end_time - start_time;
+		
+	RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+		EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
 
-BEGIN
-RAISE NOTICE 'truncate table bronze_crm_sales_details';
-TRUNCATE TABLE bronze_crm_sales_details;
+		-- count the total rows from bronze_erp_cat_g1v2
+		SELECT COUNT(*) INTO row_count FROM bronze_erp_cat_g1v2;
+		RAISE NOTICE 'total no of rows in bronze_erp_cat_g1v2: %', row_count;
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 
-RAISE NOTICE 'copy file sales_details into bronze_crm_sales_details';
-COPY bronze_crm_sales_details
-FROM 'C:\Program Files\PostgreSQL\16\sales_details.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
-	DELIMITER ','
-);
-	end_time := clock_timestamp();
-	duration := end_time - start_time; -- Ascertain the time to cpy into bronze_crm_sales_details --
-SELECT COUNT(*) INTO row_count FROM bronze_crm_sales_details;
-RAISE NOTICE 'bronze_crm_sales_details has % rows (copied in %)', row_count, duration;
-EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Error copying into bronze_crm_sales_details: %', SQLERRM;
-END;
-
-	start_time:= clock_timestamp();
-RAISE NOTICE 'truncate table bronze_crm_prd_info';
-TRUNCATE TABLE bronze_crm_prd_info;
-
-BEGIN
-RAISE NOTICE 'copy prd_info file into bronze_crm_prd_info';
-COPY bronze_crm_prd_info
-FROM 'C:\Program Files\PostgreSQL\16\prd_info.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
-	DELIMITER ','
-);
-	end_time := clock_timestamp();
-	duration := end_time - start_time; -- Ascertain the time to cpy into bronze_crm_prd_info --
-SELECT COUNT(*) INTO row_count FROM bronze_crm_prd_info;
-RAISE NOTICE 'bronze_crm_prd_info has % rows (copied in %)', row_count, duration;
-
-EXCEPTION WHEN OTHERS THEN
-   RAISE NOTICE 'Error copying into bronze_crm_prd_info: %', SQLERRM;
-END;
-
-
-
-RAISE NOTICE 'truncate table bronze_erp_cust_az1 2';
-TRUNCATE TABLE bronze_erp_cust_az12;
-
-BEGIN
-	start_time:= clock_timestamp();
-RAISE NOTICE 'copy cust_az12 file into bronze_erp_cust_az12';
-COPY bronze_erp_cust_az12
-FROM 'C:\Program Files\PostgreSQL\16\CUST_AZ12.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
-	DELIMITER ','
-);
-	end_time := clock_timestamp();
-	duration := end_time - start_time; -- Ascertain the time to cpy into bronze_erp_cust_az12 --
-SELECT COUNT(*) INTO row_count FROM bronze_erp_cust_az12;
-RAISE NOTICE 'bronze_erp_cust_az12 has % rows (copied in %)', row_count, duration;
-EXCEPTION WHEN OTHERS THEN
-   RAISE NOTICE 'Error copying into bronze_erp_cust_az12: %', SQLERRM;
-END;
-
-
-RAISE NOTICE 'truncate table bronze_erp_loc_a101';
-TRUNCATE TABLE bronze_erp_loc_a101;
-
-BEGIN
-	start_time:= clock_timestamp();
-RAISE NOTICE 'copy file from loc_a101 into bronze_erp_loc_a101';
-COPY bronze_erp_loc_a101
-FROM 'C:\Program Files\PostgreSQL\16\LOC_A101.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
-	DELIMITER ','
-);
-	end_time := clock_timestamp();
-	duration := end_time - start_time; -- Ascertain the time to cpy into bronze_erp_loc_a101 --
-SELECT COUNT(*) INTO row_count FROM bronze_erp_loc_a101;
-RAISE NOTICE 'bronze_erp_loc_a101 has % rows (copied in %)', row_count, duration;
-EXCEPTION WHEN OTHERS THEN
-   RAISE NOTICE 'Error copying into bronze_erp_loc_a101: %', SQLERRM;
-END;
-
-
-RAISE NOTICE 'truncate table bronze_erp_px_cat_g1v2';
-TRUNCATE TABLE bronze_erp_px_cat_g1v2;
-
-BEGIN
-	start_time:= clock_timestamp();
-RAISE NOTICE 'copy px_cat_g1v2into bronze_erp_px_cat_g1v2';
-COPY bronze_erp_px_cat_g1v2
-FROM 'C:\Program Files\PostgreSQL\16\PX_CAT_G1V2.csv'
-WITH(
-	FORMAT csv,
-	HEADER true,
-	DELIMITER ','
-);
-	end_time := clock_timestamp();
-	duration := end_time - start_time;-- Ascertain the time to cpy into bronze_erp_px_cat_g1v2 --
-SELECT COUNT(*) INTO row_count FROM bronze_erp_px_cat_g1v2;
-RAISE NOTICE 'bronze_erp_px_cat_g1v2 has % rows (copied in %)', row_count, duration;
-EXCEPTION WHEN OTHERS THEN
-   RAISE NOTICE 'Error copying into bronze_erp_px_cat_g1v2: %', SQLERRM;
-END;
-
-	total_end_time := clock_timestamp();-- Setting the time to ascertain the total end time of the file loading--
-    total_duration := total_end_time - total_start_time;-- Setting the time duration to ascertain the total time of the file loading--
-    RAISE NOTICE 'Total time taken to copy all files: %', total_duration;
+	END;
 
 END;
 $$;
 
 
-
-
-SELECT * FROM bronze_crm_cust_info;
-
-SELECT * FROM bronze_crm_sales_details;
-
-SELECT * FROM bronze_crm_prd_info;
-
-SELECT * FROM bronze_erp_cust_az12;
-
-SELECT * FROM bronze_erp_loc_a101;
-
-SELECT * FROM bronze_erp_px_cat_g1v2;
-
-CALL bronze_load_procedure();
+CALL bronze_load ();
 

@@ -1,0 +1,59 @@
+SELECT ci. cst_id,
+ci. cst_key AS customer_key,
+ci. cst_firstname AS fisrt_name,
+ci. cst_lastname AS last_name,
+ci. cst_marital_status AS marital_status,
+ci. cst_gndr,
+CASE 
+	WHEN ci. cst_gndr <> 'n/a' THEN ci. cst_gndr 
+	ELSE COALESCE (ca. gen, 'n/a')
+	END gender,
+ca. bdate AS birthdate,
+ca. gen AS gender,
+lo. cntry AS country,
+ci. cst_create_date AS create_date
+FROM silver_crm_cust_info ci
+LEFT JOIN silver_erp_loc_a101 lo
+ON ci. cst_key = lo. cid
+LEFT JOIN silver_erp_cust_az12 ca
+ON ci.cst_key = ca.cid;
+
+
+
+
+
+
+
+
+CREATE VIEW gold_load_dimension AS
+-- Selecting customer info with enrichment from ERP location and customer tables
+SELECT 
+	ROW_NUMBER() OVER(ORDER BY cst_id) AS customer_key,-- generating surrogate key
+    ci.cst_id,                                -- Customer ID (from CRM table)
+    ci.cst_key AS customer_number,               -- Customer key, renamed as customer_number
+    ci.cst_firstname AS fisrt_name,           -- First name (typo: "fisrt_name" should be "first_name")
+    ci.cst_lastname AS last_name,             -- Last name
+    ci.cst_marital_status AS marital_status,  -- Marital status
+    -- Derived gender field:
+    CASE 
+        WHEN ci.cst_gndr <> 'n/a' THEN ci.cst_gndr      -- If gender is not "n/a", keep CRM value
+        ELSE COALESCE(ca.gen, 'n/a')                    -- Otherwise, fallback to ERP gender; if null, use "n/a"
+    END AS gender,
+    
+    ca.bdate AS birthdate,        -- Birthdate from ERP customer table
+    lo.cntry AS country,          -- Country from ERP location table
+    ci.cst_create_date AS create_date -- Customer creation date from CRM
+FROM silver_crm_cust_info ci
+-- Join to ERP location table based on customer key
+LEFT JOIN silver_erp_loc_a101 lo
+    ON ci.cst_key = lo.cid
+-- Join to ERP customer table based on customer key
+LEFT JOIN silver_erp_cust_az12 ca
+    ON ci.cst_key = ca.cid;
+
+
+SELECT * FROM gold_load_dimension;
+
+
+
+

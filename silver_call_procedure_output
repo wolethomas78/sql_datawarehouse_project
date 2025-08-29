@@ -1,0 +1,18 @@
+NOTICE:  Load Time: 177.622000 ms
+NOTICE:  total no of rows in silver_crm_cust_info: 18484
+NOTICE:  Load Time: 8.110000 ms
+NOTICE:  total no of rows in silver_crm_prd_info: 397
+NOTICE:  Load Time: 793.766000 ms
+NOTICE:  total no of rows in silver_crm_sales_details: 60398
+NOTICE:  Load Time: 81.736000 ms
+NOTICE:  total no of rows in silver_erp_cust_az12: 18484
+NOTICE:  Load Time: 144.696000 ms
+NOTICE:  total no of rows in silver_erp_cust_az12: 18484
+NOTICE:  Load Time: 2.814000 ms
+NOTICE:  total no of rows in silver_erp_cat_g1v2: 37
+CALL
+
+Query returned successfully in 674 msec.
+Total rows: 37 of 37
+Query complete 00:00:00.674
+Ln 76, Col 2

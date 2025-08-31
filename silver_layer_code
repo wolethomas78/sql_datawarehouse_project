@@ -166,7 +166,7 @@ SELECT
     prd_id,                                             -- Product unique identifier
 
     -- Extract first 5 characters of product key, remove underscores → category ID
-    REPLACE(SUBSTRING(prd_key, 1, 5), '_', '') AS cat_id,   
+    REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS cat_id,   
 
     -- Extract product key starting from 7th character → cleaned product key
     SUBSTRING(prd_key FROM 7) AS prd_key,                   

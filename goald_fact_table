@@ -1,0 +1,33 @@
+-- Create a fact view that integrates sales transactions with product and customer dimensions
+CREATE VIEW gold_fact_load AS
+
+SELECT 
+    -- Business transaction identifiers
+    sf.sls_ord_num AS order_number,       -- Sales order number from source system
+    
+    -- Dimension surrogate keys
+    gp.product_key,                       -- Product surrogate key (FK to Product Dimension)
+    co.customer_key,                      -- Customer surrogate key (FK to Customer Dimension)
+    
+    -- Order lifecycle dates
+    sf.sls_order_dt AS order_date,        -- Date when the order was placed
+    sf.sls_ship_dt AS shipping_date,      -- Date when the order was shipped
+    sf.sls_due_dt AS due_date,            -- Date when the order was due to ship
+    
+    -- Sales measures
+    sf.sls_sales AS sales_amount,         -- Total sales amount for the order line
+    sf.sls_quantity AS quantity,          -- Quantity of items sold
+    sf.sls_price AS price                 -- Unit price of the product at time of sale
+
+FROM silver_crm_sales_details sf
+-- Join to Customer Dimension (gold_load_dimension)
+LEFT JOIN gold_load_dimension co
+    ON sf.sls_cust_id = co.cst_id         -- Match customer IDs from source to dimension
+    
+-- Join to Product Dimension (gold_load_product)
+LEFT JOIN gold_load_product gp
+    ON sf.sls_prd_key = gp.product_number -- Match product keys from source to dimension
+;
+
+-- Preview the contents of the fact view
+SELECT * FROM gold_fact_load;

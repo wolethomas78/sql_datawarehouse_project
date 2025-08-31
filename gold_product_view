@@ -1,0 +1,31 @@
+-- Create a view called gold_load_product
+CREATE VIEW gold_load_product AS
+
+SELECT
+    -- Generate a surrogate key for each row, ordered by start date then product key
+    ROW_NUMBER() OVER(ORDER BY pn.prd_start_dt, pn.prd_key) AS product_key,
+    
+    -- Business identifiers from source table
+    pn.prd_id AS product_id,          -- Original product ID
+    pn.prd_key AS product_number,     -- Product number/key
+    pn.prd_nm AS product_name,        -- Product name
+    
+    -- Category information
+    pn.cat_id AS category_id,         -- Category ID reference
+    ct.cat AS category,               -- Category description
+    ct.subcat AS subcategory,         -- Subcategory description
+    ct.maintenance,                   -- Maintenance flag/attribute
+    
+    -- Product attributes
+    pn.prd_cost AS cost,              -- Product cost
+    pn.prd_line AS product_line,      -- Product line/segment
+    pn.prd_start_dt AS start_date     -- Product start/launch date
+
+FROM silver_crm_prd_info pn
+LEFT JOIN silver_erp_cat_g1v2 ct
+    ON pn.cat_id = ct.id              -- Join category reference to lookup table
+
+WHERE prd_end_dt IS NULL;             -- Keep only active products (exclude historical)
+
+-- Test query to inspect the view output
+SELECT * FROM gold_load_product;

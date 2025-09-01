@@ -1,4 +1,4 @@
-## etl_pipeline_project/
+''' etl_pipeline_project/
 │
 ├── README.md
 ├── data/
@@ -29,6 +29,6 @@
 ├── docs/
 │   └── architecture_diagram.png      # Medallion pipeline visual
 │
-└── examples/
+└── examples/ '''
     └── sample_queries.sql            # Example queries on Gold layer
 

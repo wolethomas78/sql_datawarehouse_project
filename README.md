@@ -8,6 +8,7 @@ This project implements a Medallion Architecture ETL pipeline using PostgreSQL. 
 
 ## Architecture Diagram
 The pipeline follows the **Bronze → Silver → Gold** structure:
+
 ---
 - Bronze Layer (Raw CSVs)
 │

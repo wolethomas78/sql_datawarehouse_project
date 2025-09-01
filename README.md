@@ -112,7 +112,11 @@ BEGIN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;
 
-## Example Queries [Silver layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/24b621863a96f6da11f1d3208541ae1053317658/silver_layer_code)
+
+
+
+
+# Example Queries [Silver layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/24b621863a96f6da11f1d3208541ae1053317658/silver_layer_code)
 
 ```CREATE OR REPLACE PROCEDURE silver_load()
 LANGUAGE plpgsql

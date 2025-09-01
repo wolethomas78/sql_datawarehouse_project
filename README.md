@@ -112,6 +112,79 @@ BEGIN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;
 
+## Example Queries [Silver layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/24b621863a96f6da11f1d3208541ae1053317658/silver_layer_code)
+
+```CREATE OR REPLACE PROCEDURE silver_load()
+LANGUAGE plpgsql
+AS $$
+DECLARE 
+	start_time TIMESTAMP;
+	end_time TIMESTAMP;
+	duration INTERVAL;
+	row_count BIGINT;
+BEGIN
+
+	BEGIN 
+		start_time := clock_timestamp();
+-- Truncate and copy csv file into table silver_crm_cust_info
+TRUNCATE TABLE silver_crm_cust_info;
+INSERT INTO silver_crm_cust_info (
+	cst_id,
+	cst_key,
+	cst_firstname,
+	cst_lastname,
+	cst_marital_status,
+	cst_gndr,
+	cst_create_date
+) 
+
+-- Select customer details with cleaned fields and latest record per customer
+SELECT 
+    cst_id,                                   -- Customer unique identifier
+    cst_key,                                  -- Customer key 
+    TRIM(cst_firstname) AS cst_firstname,     -- Trim spaces from first name
+    TRIM(cst_lastname) AS cst_lastname,       -- Trim spaces from last name
+
+    -- Map marital status codes to descriptive values
+    CASE
+        WHEN TRIM(UPPER(cst_marital_status)) = 'M' THEN 'Married'
+        WHEN TRIM(UPPER(cst_marital_status)) = 'S' THEN 'Single'
+        ELSE 'n/a'                            -- Default for null/unknown values
+    END AS cst_marital_status,
+
+    -- Map gender codes to descriptive values
+    CASE
+        WHEN TRIM(UPPER(cst_gndr)) = 'M' THEN 'Male'
+        WHEN TRIM(UPPER(cst_gndr)) = 'F' THEN 'Female'
+        ELSE 'n/a'                            -- Default for null/unknown values
+    END AS cst_gndr,	
+
+    cst_create_date                           -- Record creation timestamp
+
+FROM (
+    -- Deduplicate customers by keeping only the latest record per cst_id
+    SELECT *,
+        ROW_NUMBER() OVER(
+            PARTITION BY cst_id 
+            ORDER BY cst_create_date DESC     -- Latest record first
+        ) AS latest
+    FROM bronze_crm_cust_info
+    WHERE cst_id IS NOT NULL                  -- Exclude records without ID
+) y
+WHERE latest = 1;                              -- Keep only the latest record per customer
+
+		end_time := clock_timestamp();
+		duration := end_time - start_time;
+	RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+	EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+
+	SELECT COUNT(*) INTO row_count FROM silver_crm_cust_info;
+			RAISE NOTICE 'total no of rows in silver_crm_cust_info: %', row_count;
+			
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	END;
 
 
 

@@ -1,29 +1,23 @@
-
 # ETL Pipeline Project with Medallion Architecture (PostgreSQL)
 
 ## Project Overview
-This project implements a Medallion Architecture ETL pipeline using PostgreSQL. It ingests raw CRM and ERP CSV datasets (Bronze layer), performs data cleaning and transformations (Silver layer), and creates analytics-ready views (Gold layer). The pipeline leverages **stored procedures**, **logging**, and tracks **row counts and ETL performance**.
+This project implements a **Medallion Architecture ETL pipeline** using PostgreSQL.  
+It ingests raw **CRM** and **ERP** CSV datasets (Bronze layer), performs **data cleaning and transformations** (Silver layer), and creates **analytics-ready views** (Gold layer).  
+
+The pipeline leverages:
+- **Stored procedures** for orchestration  
+- **Logging** for errors, row counts, and runtime  
+- **Star schema design** in the analytics layer  
 
 ---
 
 ## Architecture Diagram
-The pipeline follows the **Bronze → Silver → Gold** structure:
----
-- Bronze Layer (Raw CSVs)
-│
-▼
-- Silver Layer (Cleaned & Transformed Data)
-│
-▼
-- Gold Layer (Analytics-ready Views)
----
+![ETL Pipeline](https://github.com/wolethomas78/sql_datawarehouse_project/blob/905b331c27282d12cb310ae1e9d0b52a5c525b53/DWH_Architecture.png)
 
-- **Bronze Layer:** Ingest raw CSV files into staging tables.
-- **Silver Layer:** Data cleaning, deduplication, type casting, and logging.
-- **Gold Layer:** Create views for analytics and reporting.
 ---
 
 ## Datasets
+![Data Flow](https://github.com/wolethomas78/sql_datawarehouse_project/blob/7b1b0d99fc21e21df678a61f677b076b5d0bec28/Data_flow.png)
 
 ### CRM Folder
 | File | Description |
@@ -39,42 +33,60 @@ The pipeline follows the **Bronze → Silver → Gold** structure:
 | `px_cat_g1v2.csv` | Product category and pricing info |
 | `sales_details.csv` | Sales transaction details |
 
-All files are located under `data/bronze/CRM` and `data/bronze/ERP`.
-
 ---
 
 ## ETL Pipeline Steps
 
 1. **Bronze Layer**
-   - Load CSV files into PostgreSQL staging tables.
-   - Track errors and load time via logging stored procedures.
+   - Load raw CSVs into PostgreSQL staging tables  
+   - Log load times and errors  
 
 2. **Silver Layer**
-   - Clean and standardize the data:
-     - Handle missing values and duplicates
-     - Convert data types as needed
-     - Perform initial transformations for analysis
-   - Log row counts and runtime for each transformation.
+   - Data cleaning: remove duplicates, handle nulls, enforce data types  
+   - Standardize CRM + ERP data for integration  
+   - Log row counts and runtime  
 
 3. **Gold Layer**
-   - Create views for analytics:
-     - Customer sales summary
-     - Product performance and revenue
-     - Aggregated metrics for reporting
+   - Build business-ready views for reporting  
+   - Organize data into a **star schema**  
+
+---
+
+## Star Schema (Gold Layer)
+![Star Schema](docs/star_schema.png)
 
 ---
 
 ## Key Features
-- Implements **Medallion Architecture** (Bronze → Silver → Gold)
-- ETL orchestration using **PostgreSQL stored procedures**
-- Detailed **logging and monitoring** for row counts, errors, and runtime
-- Data cleaning, deduplication, and type casting
-- Analytics-ready views for business insights
+- Implements **Medallion Architecture** (Bronze → Silver → Gold)  
+- ETL orchestration using **PostgreSQL stored procedures**  
+- **Error handling and performance logging**  
+- Data cleaning & standardization in Silver layer  
+- **Star schema design** in Gold layer for analytics  
 
 ---
 
-## Example Queries
-[Bronze layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/af8b612bb1e94eb932118f50bc7c1409850d950f/bronze_layer_code)
+## Example Queries (Gold Layer)
+```sql
+-- Top 10 customers by total sales
+SELECT c.customer_name, SUM(s.amount) AS total_sales
+FROM gold_sales_view s
+JOIN gold_customers_view c ON s.customer_id = c.customer_id
+GROUP BY c.customer_name
+ORDER BY total_sales DESC
+LIMIT 10;
+
+-- Total sales by product category
+SELECT p.category_name, SUM(s.amount) AS total_sales
+FROM gold_sales_view s
+JOIN gold_product_view p ON s.product_id = p.product_id
+GROUP BY p.category_name
+ORDER BY total_sales DESC;
+
+
+---
+
+## Example Queries [Bronze layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/af8b612bb1e94eb932118f50bc7c1409850d950f/bronze_layer_code)
 ```-- Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
 language plpgsql
@@ -112,6 +124,7 @@ BEGIN
 		WHEN OTHERS THEN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;
+
 
 
 
@@ -190,6 +203,9 @@ WHERE latest = 1;                              -- Keep only the latest record pe
 		WHEN OTHERS THEN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;
+
+
+
 
 
 

@@ -73,7 +73,8 @@ All files are located under `data/bronze/CRM` and `data/bronze/ERP`.
 
 ---
 
-## Example Queries [Bronze layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/af8b612bb1e94eb932118f50bc7c1409850d950f/bronze_layer_code)
+## Example Queries
+[Bronze layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/af8b612bb1e94eb932118f50bc7c1409850d950f/bronze_layer_code)
 ```-- Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
 language plpgsql
@@ -116,7 +117,7 @@ BEGIN
 
 
 
-# Example Queries [Silver layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/24b621863a96f6da11f1d3208541ae1053317658/silver_layer_code)
+# [Silver layer](https://github.com/wolethomas78/sql_datawarehouse_project/blob/24b621863a96f6da11f1d3208541ae1053317658/silver_layer_code)
 
 ```CREATE OR REPLACE PROCEDURE silver_load()
 LANGUAGE plpgsql

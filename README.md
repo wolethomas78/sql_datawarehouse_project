@@ -67,6 +67,7 @@ The solution highlights:
   - Tracked and reported any load errors
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  --- 
+ ## Sample Code:
 ```
 	 Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()

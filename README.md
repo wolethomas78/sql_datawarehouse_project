@@ -67,7 +67,7 @@ The solution highlights:
   - Tracked and reported any load errors
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  --- 
- ## Sample Code:
+ ## Sample Bronze Code:
 ```
 	 Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
@@ -120,6 +120,8 @@ BEGIN
   - Error capture (invalid formats, null violations, duplicates)  
   - Transformation runtime
  - ![Silver Layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
+
+## Sample Silver Layer Code
 
 ```
 	CREATE OR REPLACE PROCEDURE silver_load()
@@ -186,23 +188,37 @@ FROM (
 - ![Gold Layer Fact Table Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/goald_fact_table)
 - ![Gold Layer Product Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/gold_product_view)
 - ![Gold Layer Customer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/gold_dimension_code)
----
 
-```## Example Queries
-```sql
--- Top 10 customers by total sales
-SELECT c.customer_name, SUM(s.amount) AS total_sales
-FROM gold_sales_view s
-JOIN gold_customers_view c ON s.customer_id = c.customer_id
-GROUP BY c.customer_name
-ORDER BY total_sales DESC
-LIMIT 10;
+  ## Sample Gold Layer Code
 
--- Total sales by product category
-SELECT p.category_name, SUM(s.amount) AS total_sales
-FROM gold_sales_view s
-JOIN gold_product_view p ON s.product_id = p.product_id
-GROUP BY p.category_name
-ORDER BY total_sales DESC;
+  ```
+	CREATE VIEW gold_load_dimension AS
+-- Selecting customer info with enrichment from ERP location and customer tables
+SELECT 
+	ROW_NUMBER() OVER(ORDER BY cst_id) AS customer_key,-- generating surrogate key
+    ci.cst_id,                                -- Customer ID (from CRM table)
+    ci.cst_key AS customer_number,               -- Customer key, renamed as customer_number
+    ci.cst_firstname AS fisrt_name,           -- First name (typo: "fisrt_name" should be "first_name")
+    ci.cst_lastname AS last_name,             -- Last name
+    ci.cst_marital_status AS marital_status,  -- Marital status
+    -- Derived gender field:
+    CASE 
+        WHEN ci.cst_gndr <> 'n/a' THEN ci.cst_gndr      -- If gender is not "n/a", keep CRM value
+        ELSE COALESCE(ca.gen, 'n/a')                    -- Otherwise, fallback to ERP gender; if null, use "n/a"
+    END AS gender,
+    
+    ca.bdate AS birthdate,        -- Birthdate from ERP customer table
+    lo.cntry AS country,          -- Country from ERP location table
+    ci.cst_create_date AS create_date -- Customer creation date from CRM
+FROM silver_crm_cust_info ci
+-- Join to ERP location table based on customer key
+LEFT JOIN silver_erp_loc_a101 lo
+    ON ci.cst_key = lo.cid
+-- Join to ERP customer table based on customer key
+LEFT JOIN silver_erp_cust_az12 ca
+    ON ci.cst_key = ca.cid;
 
+
+SELECT * FROM gold_load_dimension;
+  ```
 

@@ -67,7 +67,8 @@ The solution highlights:
   - Tracked and reported any load errors
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  --- 
-``` Creating store procedure for re-useability
+```
+	 Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
 language plpgsql
 AS $$
@@ -103,7 +104,8 @@ BEGIN
 	EXCEPTION -- display error message if any error
 		WHEN OTHERS THEN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
-	END; ```
+	END;
+```
 
 ---
 ---

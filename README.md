@@ -60,18 +60,19 @@ The solution highlights:
 
 ### 🔹 Bronze Layer
 - **CSV ingestion:** Copied 6 CSVs (CRM + ERP) into PostgreSQL staging tables.  
-- **Stored procedures:** Automated the load process.  
+- **Stored procedures:** For logic (loading, transforming, truncating, inserting, logging, etc.) into reusable blocks of SQL code. 
 - **Logging:**  
   - Recorded job runtime for each table load  
   - Counted number of rows loaded  
-  - Tracked and reported any load errors  
+  - Tracked and reported any load errors
+  - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code) 
 
 ### 🔹 Silver Layer
 - **Data cleaning & standardization:**  
   - Removed duplicates  
   - Handled missing values  
   - Enforced correct data types  
-- **Stored procedures:** Used to orchestrate cleaning steps.  
+- **Stored procedures:** Encapsulate the ETL load process (truncate, transform, insert, and log steps) and enable automation when scheduled through orchestration tools.  
 - **Logging:**  
   - Row counts before & after cleaning  
   - Error capture (invalid formats, null violations, duplicates)  

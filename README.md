@@ -42,7 +42,7 @@ The solution highlights:
 
 ---
 
-## 📂 Datasets
+## Datasets
 
 ### CRM Folder
 - `CUST_AZ12.csv` → Customer IDs and metadata  
@@ -56,7 +56,7 @@ The solution highlights:
 
 ---
 
-## ⚙️ ETL Pipeline Steps
+## ETL Pipeline Steps
 
 ### 🔹 Bronze Layer
 - **CSV ingestion:** Copied 6 CSVs (CRM + ERP) into PostgreSQL staging tables.  
@@ -114,15 +114,71 @@ BEGIN
 - **Logging:**  
   - Row counts before & after cleaning  
   - Error capture (invalid formats, null violations, duplicates)  
-  - Transformation runtime  
+  - Transformation runtime
+ ![Silver Layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
+```CREATE OR REPLACE PROCEDURE silver_load()
+LANGUAGE plpgsql
+AS $$
+DECLARE 
+	start_time TIMESTAMP;
+	end_time TIMESTAMP;
+	duration INTERVAL;
+	row_count BIGINT;
+BEGIN
 
-### 🔹 Gold Layer
+	BEGIN 
+		start_time := clock_timestamp();
+-- Truncate and copy csv file into table silver_crm_cust_info
+TRUNCATE TABLE silver_crm_cust_info;
+INSERT INTO silver_crm_cust_info (
+	cst_id,
+	cst_key,
+	cst_firstname,
+	cst_lastname,
+	cst_marital_status,
+	cst_gndr,
+	cst_create_date
+) 
+
+-- Select customer details with cleaned fields and latest record per customer
+SELECT 
+    cst_id,                                   -- Customer unique identifier
+    cst_key,                                  -- Customer key 
+    TRIM(cst_firstname) AS cst_firstname,     -- Trim spaces from first name
+    TRIM(cst_lastname) AS cst_lastname,       -- Trim spaces from last name
+
+    -- Map marital status codes to descriptive values
+    CASE
+        WHEN TRIM(UPPER(cst_marital_status)) = 'M' THEN 'Married'
+        WHEN TRIM(UPPER(cst_marital_status)) = 'S' THEN 'Single'
+        ELSE 'n/a'                            -- Default for null/unknown values
+    END AS cst_marital_status,
+
+    -- Map gender codes to descriptive values
+    CASE
+        WHEN TRIM(UPPER(cst_gndr)) = 'M' THEN 'Male'
+        WHEN TRIM(UPPER(cst_gndr)) = 'F' THEN 'Female'
+        ELSE 'n/a'                            -- Default for null/unknown values
+    END AS cst_gndr,	
+
+    cst_create_date                           -- Record creation timestamp
+
+FROM (
+    -- Deduplicate customers by keeping only the latest record per cst_id
+    SELECT *,
+        ROW_NUMBER() OVER(
+            PARTITION BY cst_id 
+            ORDER BY cst_create_date DESC     -- Latest record first
+        ) AS latest
+    FROM bronze_crm_cust_info
+    WHERE cst_id IS NOT NULL                  -- Exclude records without ID
+### Gold Layer
 - **Views creation:** Built analytics-ready views for sales, products, and customers.  
-- **Star schema design:** Modeled a fact table (sales) with dimension tables (customer, product, location).  
+- **Star schema design:** Modeled a fact table (sales) with dimension tables (customer, product, location).```
 
 ---
 
-## 🔎 Example Queries
+## Example Queries
 ```sql
 -- Top 10 customers by total sales
 SELECT c.customer_name, SUM(s.amount) AS total_sales

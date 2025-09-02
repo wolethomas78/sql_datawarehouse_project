@@ -181,7 +181,7 @@ FROM (
 
 ---
 
-## Example Queries
+```## Example Queries
 ```sql
 -- Top 10 customers by total sales
 SELECT c.customer_name, SUM(s.amount) AS total_sales

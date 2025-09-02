@@ -103,7 +103,7 @@ BEGIN
 	EXCEPTION -- display error message if any error
 		WHEN OTHERS THEN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
-	END;```
+	END;
 
 ---
 ---

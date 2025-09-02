@@ -37,8 +37,8 @@ The solution highlights:
 ### 5. Star Schema (Gold Layer)
 ![Star Schema](https://github.com/wolethomas78/sql_datawarehouse_project/blob/6ee175a66102e0bc575fbe67f3a3332d318448a7/star%20schema.png)
 
-### 6. Data Warehouse Layers
-![DWH Layer]()
+### 6. Data Warehouse Layers Process
+![DWH Layer Process](https://github.com/wolethomas78/sql_datawarehouse_project/blob/8f0ad247e1785eae46497cabed6fb1684f9381c4/BronzeLayer_Process.png)
 
 ---
 

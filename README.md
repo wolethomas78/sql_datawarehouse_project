@@ -106,10 +106,8 @@ BEGIN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;
 ```
+---
 
----
----
-    ![Silver layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
 # Silver Layer
 - **Data cleaning & standardization:**  
   - Removed duplicates  
@@ -121,7 +119,9 @@ BEGIN
   - Error capture (invalid formats, null violations, duplicates)  
   - Transformation runtime
  ![Silver Layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
-```CREATE OR REPLACE PROCEDURE silver_load()
+
+```
+	CREATE OR REPLACE PROCEDURE silver_load()
 LANGUAGE plpgsql
 AS $$
 DECLARE 
@@ -177,6 +177,7 @@ FROM (
         ) AS latest
     FROM bronze_crm_cust_info
     WHERE cst_id IS NOT NULL                  -- Exclude records without ID
+```
 ### Gold Layer
 - **Views creation:** Built analytics-ready views for sales, products, and customers.  
 - **Star schema design:** Modeled a fact table (sales) with dimension tables (customer, product, location).```

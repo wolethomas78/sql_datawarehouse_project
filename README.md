@@ -118,7 +118,7 @@ BEGIN
   - Row counts before & after cleaning  
   - Error capture (invalid formats, null violations, duplicates)  
   - Transformation runtime
- ![Silver Layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
+ - ![Silver Layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
 
 ```
 	CREATE OR REPLACE PROCEDURE silver_load()
@@ -178,10 +178,13 @@ FROM (
     FROM bronze_crm_cust_info
     WHERE cst_id IS NOT NULL                  -- Exclude records without ID
 ```
+---
 ### Gold Layer
 - **Views creation:** Built analytics-ready views for sales, products, and customers.  
 - **Star schema design:** Modeled a fact table (sales) with dimension tables (customer, product, location).```
-
+- ![Gold Layer Fact Table Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/goald_fact_table)
+- ![Gold Layer Product Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/gold_product_view)
+- ![Gold Layer Customer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/gold_dimension_code)
 ---
 
 ```## Example Queries

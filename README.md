@@ -67,7 +67,7 @@ The solution highlights:
   - Tracked and reported any load errors
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  --- 
- ## Sample Bronze Code:
+ ## Sample Bronze Layer Code:
 ```
 	 Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
@@ -191,9 +191,9 @@ FROM (
 
   ## Sample Gold Layer Code
 
-  ```
+```
 	CREATE VIEW gold_load_dimension AS
--- Selecting customer info with enrichment from ERP location and customer tables
+--- Selecting customer info with enrichment from ERP location and customer tables
 SELECT 
 	ROW_NUMBER() OVER(ORDER BY cst_id) AS customer_key,-- generating surrogate key
     ci.cst_id,                                -- Customer ID (from CRM table)
@@ -220,5 +220,5 @@ LEFT JOIN silver_erp_cust_az12 ca
 
 
 SELECT * FROM gold_load_dimension;
-  ```
+```
 

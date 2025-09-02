@@ -65,7 +65,45 @@ The solution highlights:
   - Recorded job runtime for each table load  
   - Counted number of rows loaded  
   - Tracked and reported any load errors
-  - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code) 
+  - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
+  - ```
+-- Creating store procedure for re-useability
+CREATE OR REPLACE PROCEDURE bronze_load ()
+language plpgsql
+AS $$
+-- Determing time taking to copy each file, display error if any and count rows in each file.
+DECLARE
+	start_time  TIMESTAMP; -- time when the upload starts
+	end_time  TIMESTAMP; -- time when the upload ends
+	duration  INTERVAL; -- difference btween end_time and start_time
+	row_count  BIGINT; -- count the total rows in each file
+
+BEGIN 
+	
+
+	BEGIN
+			start_time := clock_timestamp();
+		-- Bulk loading of the CSV file from the source
+		-- Truncate and copy csv file into table bronze_crm_cust_info
+		TRUNCATE TABLE bronze_crm_cust_info; 
+		COPY bronze_crm_cust_info
+		FROM 'C:\Program Files\PostgreSQL\16\cust_info.csv'
+		DELIMITER ','
+		CSV HEADER;
+			end_time := clock_timestamp();
+			duration := end_time - start_time;
+      
+		RAISE NOTICE 'Load Time: % ms', -- display the loading time in millisecond
+			EXTRACT(MILLISECOND FROM duration) + EXTRACT(SECOND FROM duration)* 1000;
+			
+		-- count the total rows from bronze_crm_cust_info
+		SELECT COUNT(*) INTO row_count FROM bronze_crm_cust_info;
+		RAISE NOTICE 'total no of rows in bronze_crm_cust_info: %', row_count;
+			
+	EXCEPTION -- display error message if any error
+		WHEN OTHERS THEN
+		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
+	END;
 
 ### 🔹 Silver Layer
 - **Data cleaning & standardization:**  

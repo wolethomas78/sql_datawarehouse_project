@@ -105,7 +105,9 @@ BEGIN
 		RAISE NOTICE 'no of errors during upload: %', SQLERRM;
 	END;```
 
-### 🔹 Silver Layer
+---
+
+```### 🔹 Silver Layer
 - **Data cleaning & standardization:**  
   - Removed duplicates  
   - Handled missing values  

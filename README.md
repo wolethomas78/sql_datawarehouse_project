@@ -106,7 +106,8 @@ BEGIN
 	END;```
 
 ---
- ![Silver layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
+
+    ![Silver layer code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/62319e8a4fcbc7512ece4297ce03f59d513e8446/silver_layer_code)
 ```# Silver Layer
 - **Data cleaning & standardization:**  
   - Removed duplicates  

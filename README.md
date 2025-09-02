@@ -107,7 +107,7 @@ BEGIN
 
 ---
 
-```### 🔹 Silver Layer
+```# Silver Layer
 - **Data cleaning & standardization:**  
   - Removed duplicates  
   - Handled missing values  

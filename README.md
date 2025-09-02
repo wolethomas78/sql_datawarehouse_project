@@ -46,6 +46,7 @@ All files are located under `data/bronze/CRM` and `data/bronze/ERP`.
 
 ## ETL Pipeline Steps
 
+![alt image](https://github.com/wolethomas78/sql_datawarehouse_project/blob/7b1b0d99fc21e21df678a61f677b076b5d0bec28/DWH_Architecture.png)
 1. **Bronze Layer**
    - Load CSV files into PostgreSQL staging tables.
    - Track errors and load time via logging stored procedures.

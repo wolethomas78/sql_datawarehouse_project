@@ -65,8 +65,10 @@ The solution highlights:
   - Recorded job runtime for each table load  
   - Counted number of rows loaded  
   - Tracked and reported any load errors
-  - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
+ 
  --- 
+
+  - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  ## Sample Bronze Layer Code:
 ```
 	 Creating store procedure for re-useability

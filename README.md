@@ -66,7 +66,7 @@ The solution highlights:
   - Counted number of rows loaded  
   - Tracked and reported any load errors
     
-  ```
+```
   NOTICE:  Load Time: 118.922000 ms
 NOTICE:  total no of rows in bronze_crm_cust_info: 18494
 NOTICE:  Load Time: 8.672000 ms
@@ -84,7 +84,7 @@ CALL
 Query returned successfully in 334 msec.
 Total rows: 4 of 4
 Query complete 00:00:00.334
-Ln 224, Col 
+Ln 224, Col
 ```
  ---
 

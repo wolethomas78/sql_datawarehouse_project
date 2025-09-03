@@ -65,6 +65,7 @@ The solution highlights:
   - Recorded job runtime for each table load  
   - Counted number of rows loaded  
   - Tracked and reported any load errors
+    
   ```
   NOTICE:  Load Time: 118.922000 ms
 NOTICE:  total no of rows in bronze_crm_cust_info: 18494
@@ -84,14 +85,14 @@ Query returned successfully in 334 msec.
 Total rows: 4 of 4
 Query complete 00:00:00.334
 Ln 224, Col 
-  ```
-  ---
- --- 
+```
+ ---
 
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)
  ## Sample Bronze Layer Code:
+
 ```
-	 Creating store procedure for re-useability
+	- Creating store procedure for re-useability
 CREATE OR REPLACE PROCEDURE bronze_load ()
 language plpgsql
 AS $$

@@ -61,11 +61,31 @@ The solution highlights:
 ### 🔹 Bronze Layer
 - **CSV ingestion:** Copied 6 CSVs (CRM + ERP) into PostgreSQL staging tables.  
 - **Stored procedures:** For logic (loading, transforming, truncating, inserting, logging, etc.) into reusable blocks of SQL code. 
-- **Logging:**  
+- **Logging:**  ![Tracker Output](https://github.com/wolethomas78/sql_datawarehouse_project/blob/1fa4c253659d8ee443968e264d6b022deb93e24d/bronze_call_procedure_output)
   - Recorded job runtime for each table load  
   - Counted number of rows loaded  
   - Tracked and reported any load errors
- 
+  ```
+  NOTICE:  Load Time: 118.922000 ms
+NOTICE:  total no of rows in bronze_crm_cust_info: 18494
+NOTICE:  Load Time: 8.672000 ms
+NOTICE:  total no of rows in bronze_crm_prd_info: 397
+NOTICE:  Load Time: 166.740000 ms
+NOTICE:  total no of rows in bronze_crm_sales_details: 60398
+NOTICE:  Load Time: 47.028000 ms
+NOTICE:  total no of rows in bronze_erp_loc_a101: 18484
+NOTICE:  Load Time: 119.562000 ms
+NOTICE:  total no of rows in bronze_erp_cust_az12: 18484
+NOTICE:  Load Time: 4.418000 ms
+NOTICE:  total no of rows in bronze_erp_cat_g1v2: 37
+CALL
+
+Query returned successfully in 334 msec.
+Total rows: 4 of 4
+Query complete 00:00:00.334
+Ln 224, Col 
+  ```
+  ---
  --- 
 
   - ![Bronze Layer Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/dd615ded764c169be1758d690023ed24493c7808/bronze_layer_code)

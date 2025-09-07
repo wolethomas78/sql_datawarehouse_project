@@ -243,5 +243,15 @@ LEFT JOIN silver_erp_cust_az12 ca
 
 
 SELECT * FROM gold_load_dimension;
+
+---
+
+Tools & Technologies
+- PostgreSQL → Database engine for ETL pipeline, stored procedures, logging, and transformations
+- PL/pgSQL → Stored procedure development and automation
+- COPY Command → Efficient bulk file ingestion from ERP & CRM
+- GitHub → Version control, collaboration, and documentation hosting-
+- Markdown & Mermaid → Documentation, diagrams, and reporting
+
 ```
 

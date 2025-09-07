@@ -135,8 +135,11 @@ BEGIN
 ```
 ---
 
-# Silver Layer
-- **Data cleaning & standardization:**  
+# Silver Layer (Cleansed Data)
+- **Data cleaning & standardization:**
+   - Data quality checks applied
+  - Schema alignment, error handling, and logging
+  - Row count validation and load time tracking
   - Removed duplicates  
   - Handled missing values  
   - Enforced correct data types  
@@ -208,7 +211,10 @@ FROM (
     WHERE cst_id IS NOT NULL                  -- Exclude records without ID
 ```
 ---
-### Gold Layer
+### Gold Layer (Business-Ready)
+ - Integrated ERP + CRM datasets
+ - Aggregated and transformed for analytics
+ - Ready for dashboards, KPIs, and business reports
 - **Views creation:** Built analytics-ready views for sales, products, and customers.  
 - **Star schema design:** Modeled a fact table (sales) with dimension tables (customer, product, location).```
 - ![Gold Layer Fact Table Code](https://github.com/wolethomas78/sql_datawarehouse_project/blob/01faa555270c51619c956c660548d4bb803095cf/goald_fact_table)

@@ -251,7 +251,8 @@ Tools & Technologies
 - PL/pgSQL → Stored procedure development and automation
 - COPY Command → Efficient bulk file ingestion from ERP & CRM
 - GitHub → Version control, collaboration, and documentation hosting-
-- Markdown & Mermaid → Documentation, diagrams, and reporting
+- Draw I.O → Documentation, diagrams, and reporting
+  
 
-```
+
 

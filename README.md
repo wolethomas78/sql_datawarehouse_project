@@ -58,7 +58,10 @@ The solution highlights:
 
 ## ETL Pipeline Steps
 
-### 🔹 Bronze Layer
+### 🔹 Bronze Layer (Raw Ingestion)
+- Bulk copy of ERP and CRM CSV files into staging tables
+- Preserves original data structure for traceability
+Preserves original data structure for traceability
 - **CSV ingestion:** Copied 6 CSVs (CRM + ERP) into PostgreSQL staging tables.  
 - **Stored procedures:** For logic (loading, transforming, truncating, inserting, logging, etc.) into reusable blocks of SQL code. 
 - **Logging:**  ![Tracker Output](https://github.com/wolethomas78/sql_datawarehouse_project/blob/1fa4c253659d8ee443968e264d6b022deb93e24d/bronze_call_procedure_output)

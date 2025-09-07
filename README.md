@@ -246,12 +246,46 @@ SELECT * FROM gold_load_dimension;
 ```
 ---
 
-Tools & Technologies
+## Tools & Technologies
 - PostgreSQL → Database engine for ETL pipeline, stored procedures, logging, and transformations
 - PL/pgSQL → Stored procedure development and automation
 - COPY Command → Efficient bulk file ingestion from ERP & CRM
 - GitHub → Version control, collaboration, and documentation hosting-
 - Draw I.O → Documentation, diagrams, and reporting
+
+- --
+
+## Implementation Highlights
+- Bulk Loading: Used COPY command to load ERP & CRM CSV files into staging tables.
+- Stored Procedures: Automated ETL flow with error handling, logging, and tracking.
+- Error Handling: Logged failed loads with error messages for debugging.
+- Monitoring: Captured row counts and load times for transparency and auditability.
+- Data Quality: Enforced schema validation and transformation rules in Silver layer.
+
+  ---
+
+ ## Business Expectations
+### The client required:
+- Reliable ingestion of ERP & CRM data with minimal manual intervention.
+- Auditability of ETL runs (row counts, load times, error logs).
+- Clean and integrated data for downstream analytics.
+- Scalable design for additional sources and new KPIs.
+
+---
+
+## Insights & Learnings
+- Medallion architecture ensures traceability (Bronze), data quality (Silver), and business relevance (Gold).
+- Logging row counts and load times improves trust in the pipeline.
+- PostgreSQL with PL/pgSQL can be powerful enough to manage full ETL workflows without external ETL tools.
+- GitHub enables collaboration, version control, and clear documentation for reproducibility.
+
+  ---
+
+## Recommendations
+- Add orchestration: Integrate with Apache Airflow or Prefect for scheduling and monitoring.
+- Implement versioning: Track schema and data model changes over time.
+- Expand logging: Capture more metadata (e.g., user, process ID, source file checksum).
+- Add reporting layer: Connect Power BI / Tableau for real-time dashboarding.
   
 
 

@@ -243,7 +243,7 @@ LEFT JOIN silver_erp_cust_az12 ca
 
 
 SELECT * FROM gold_load_dimension;
-
+```
 ---
 
 Tools & Technologies

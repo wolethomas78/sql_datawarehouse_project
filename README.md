@@ -9,6 +9,10 @@
    - [Sample Bronze Layer Code](#sample-bronze-layer-code)
    - [Silver Layer (Cleansed Data)](#silver-layer-cleansed-data)
    - [Sample Silver Layer Code](#sample-silver-layer-code)
+   - [Gold Layer (Business-Ready)](#gold-layer-business-ready)
+   - [Sample Gold Layer Code](#sample-gold-layer-code)
+
+
 
 
 

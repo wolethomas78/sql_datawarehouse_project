@@ -7,6 +7,8 @@
    - [DataSets](#datasets)
    - [ETL Pipeline Steps](#etl-pipeline-steps)
    - [Sample Bronze Layer Code](#sample-bronze-layer-code)
+   - [Silver Layer (Cleansed Data)](#silver-layer-cleansed-data)
+
 
 
 

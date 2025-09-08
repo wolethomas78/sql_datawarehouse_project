@@ -3,7 +3,7 @@
 
 
    - [Project Overview](#project-Overview)
-   - [Architecture and Diagrams](#architecture-diagrams)
+   - [Architecture and Diagrams](#architecture-and-diagrams)
 
     
     

@@ -1,8 +1,11 @@
 
 # ETL Pipeline Project with Medallion Architecture (PostgreSQL)
 
-  - [Project Overview](#project-Overview)
-  - [Architecture and Diagrams](#architecture-diagrams)
+
+   - [Project Overview](#project-Overview)
+   - [Architecture and Diagrams](#architecture-diagrams)
+
+    
     
 ## Project Overview
 This project implements a Medallion Architecture ETL pipeline using PostgreSQL. It ingests raw CRM and ERP CSV datasets (Bronze layer), performs data cleaning and transformations (Silver layer), and creates analytics-ready views (Gold layer). The pipeline leverages **stored procedures**, **logging**, and tracks **row counts and ETL performance**.

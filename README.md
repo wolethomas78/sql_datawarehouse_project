@@ -5,7 +5,7 @@
    - [Project Overview](#project-Overview)
    - [Architecture and Diagrams](#architecture--diagrams)
    - [DataSets](#datasets)
-   - [ETL & Pipeline Steps](#etl--pipeline-steps)
+   - [ETL Pipeline Steps](#etl-pipeline-steps)
 
 
     
